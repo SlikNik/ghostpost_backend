@@ -13,27 +13,31 @@ class GhostPostViewSet(viewsets.ModelViewSet):
     name = 'posts'
     queryset = GhostPost.objects.all().order_by('-post_date')
     serializer_class = GhostPostSerializer
-
+        
     @action(detail=False)
     def boast(self, request):
-        boast = GhostPost.objects.filter(type_of_post=True).order_by('-post_date')
+        '''Shows boast post only'''
+        boast = GhostPost.objects.filter(type_of_post='B').order_by('-post_date')
         serializer = self.get_serializer(boast, many=True)
         return Response(serializer.data)
 
     @action(detail=False)
     def roast(self, request):
-        roast = GhostPost.objects.filter(type_of_post=False).order_by('-post_date')
+        '''Shows roast post only'''
+        roast = GhostPost.objects.filter(type_of_post='R').order_by('-post_date')
         serializer = self.get_serializer(roast, many=True)
         return Response(serializer.data)
 
     @action(detail=False)
     def highest_score(self, request):
+        '''Shows post in order by score'''
         highestscores = GhostPost.objects.all().order_by('-score')
         serializer = self.get_serializer(highestscores, many=True)
         return Response(serializer.data)
 
     @action(detail=True, methods=['get','post'])
     def up_vote(self, request, pk=None):
+        '''Adds a up vote to certian post'''
         post = self.get_object()
         post.up_votes += 1
         post.save()
@@ -41,23 +45,21 @@ class GhostPostViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get','post'])
     def down_vote(self, request, pk=None):
+        '''Adds a down vote to certian post'''
         post = self.get_object()
         post.down_votes += 1
         post.save()
         return Response({'status': 'downvoted'})
-        
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def perform_destroy(self, instance):
-        instance.delete()
-    # @action(detail=True, methods=['get','delete'], name='Delete Post')
-    # def delete_post(self, request, pk=id):
-    #     current_post = GhostPost.objects.get(pk=pk)
-    #     current_post.delete()
-    #     return Response({'status': f'post {current_post.id} deleted'})
+    def destroy(self, request, pk=id):
+        '''To test run http://localhost:8000/api/posts/${id}/?secret=${secret} 
+        with method of DELETE'''
+        post = GhostPost.objects.get(pk=pk)
+        if post.secret == self.request.query_params['secret']:
+            post.delete()
+            return Response({'status': "Deleted!"})
+        else:
+            return Response({'status': "Didn't delete, bad secret ket."})
   
 
 
