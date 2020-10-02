@@ -54,7 +54,7 @@ class GhostPostViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=id):
         '''To test run http://localhost:8000/api/posts/${id}/?secret=${secret} 
         with method of DELETE'''
-        post = GhostPost.objects.get(pk=pk)
+        post = GhostPost.objects.get(id=pk)
         if post.secret == self.request.query_params['secret']:
             post.delete()
             return Response({'status': "Deleted!"})

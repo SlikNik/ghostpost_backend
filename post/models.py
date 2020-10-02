@@ -33,3 +33,5 @@ class GhostPost(models.Model):
         keys = 'abcdefghijklmnopqrstuv0123456789'
         self.secret = ''.join(random.sample(keys, 6))
         return self.secret
+
+        
